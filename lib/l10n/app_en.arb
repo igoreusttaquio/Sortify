@@ -1,0 +1,361 @@
+{
+  "@@locale": "en",
+
+  "appName": "Sortify",
+  "appTagline": "Automatic file organization",
+
+  "navWorkspace": "WORKSPACE",
+  "navDashboard": "Dashboard",
+  "navRules": "Rules",
+  "navActivity": "Activity",
+  "navLocations": "LOCATIONS",
+  "navFolders": "Folders",
+  "navSettings": "Settings",
+  "collapseMenu": "Collapse menu",
+  "expandMenu": "Expand menu",
+  "search": "Search",
+  "help": "Help",
+  "settings": "Settings",
+
+  "statusMonitoring": "Monitoring",
+  "statusPaused": "Paused",
+  "statusMonitoringSubtitle": "{count, plural, =0{No folders are being watched} =1{1 folder is being watched} other{{count} folders are being watched}}",
+  "@statusMonitoringSubtitle": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "activeRulesCount": "{count, plural, =0{No active rules} =1{1 active rule} other{{count} active rules}}",
+  "@activeRulesCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "dashboardTitle": "Dashboard",
+  "dashboardSubtitle": "Everything Sortify is doing, at a glance",
+  "statFilesToday": "Files organized today",
+  "statActiveRules": "Active rules",
+  "statFoldersMonitored": "Folders monitored",
+  "statFilesPending": "Files pending",
+  "recentActivity": "Recent activity",
+  "viewAll": "View all",
+
+  "rulesTitle": "Rules",
+  "rulesSubtitle": "Decide what happens to every file",
+  "newRule": "New rule",
+  "editRule": "Edit rule",
+  "duplicateRule": "Duplicate rule",
+  "deleteRule": "Delete rule",
+  "runRuleNow": "Run now",
+  "viewRuleActivity": "View activity",
+  "enableRule": "Enable",
+  "disableRule": "Disable",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "ruleProcessed": "{count, plural, =0{Never used} =1{1 file processed} other{{count} files processed}}",
+  "@ruleProcessed": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "ruleLastRun": "Last run {when}",
+  "@ruleLastRun": {
+    "placeholders": {
+      "when": { "type": "String" }
+    }
+  },
+  "ruleNeverRun": "Never run",
+  "ruleDeleted": "Rule deleted",
+  "ruleSaved": "Rule saved",
+  "undo": "Undo",
+
+  "noRulesTitle": "No rules yet",
+  "noRulesBody": "Rules tell Sortify where to move your files. Create your first one to get started.",
+  "noRulesAction": "Create your first rule",
+
+  "ruleName": "Rule name",
+  "ruleNameHint": "Organize PDFs",
+  "ruleScope": "Applies to",
+  "allFolders": "All folders",
+  "ruleDescription": "Description (optional)",
+  "ruleDescriptionHint": "Move all PDF documents to a dedicated folder",
+  "whenLabel": "WHEN",
+  "andLabel": "AND",
+  "thenLabel": "THEN",
+  "addCondition": "Add condition",
+
+  "conditionExtension": "File extension",
+  "conditionSize": "File size",
+  "conditionName": "File name",
+  "operatorIs": "is",
+  "operatorIsNot": "is not",
+  "operatorContains": "contains",
+  "operatorDoesNotContain": "does not contain",
+  "operatorGreaterThan": "greater than",
+  "operatorLessThan": "less than",
+  "operatorEqualTo": "equal to",
+
+  "actionMove": "Move to",
+  "actionCopy": "Copy to",
+  "actionRename": "Rename",
+  "actionDelete": "Delete",
+  "actionComingSoon": "Coming soon",
+
+  "destinationFolder": "Destination folder",
+  "newFileName": "New name",
+  "chooseFolder": "Choose folder",
+
+  "previewTitle": "Preview",
+  "previewMatches": "{count, plural, =0{No files match this rule} =1{1 file matches this rule} other{{count} files match this rule}}",
+  "@previewMatches": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "previewScanning": "Scanning folders for matches...",
+  "previewNoMatchesHint": "Try broadening the conditions so more files can match.",
+  "applyRule": "Apply rule",
+  "saveRule": "Save rule",
+  "backToRules": "Back to rules",
+
+  "activityTitle": "Activity",
+  "activitySubtitle": "A complete history of what Sortify did",
+  "filterAll": "All",
+  "filterMoved": "Moved",
+  "filterSkipped": "Skipped",
+  "filterFailed": "Failed",
+  "statusMoved": "Moved",
+  "statusSkipped": "Skipped",
+  "statusFailed": "Failed",
+  "noActivityTitle": "Nothing here yet",
+  "noActivityBody": "Operations will appear here as soon as Sortify starts organizing your files.",
+  "noActivityFilteredTitle": "No matching operations",
+  "noActivityFilteredBody": "No activity matches the selected filter.",
+  "noMatchingRule": "No matching rule",
+  "operationDetails": "Operation details",
+  "detailTimestamp": "Timestamp",
+  "detailSource": "Source",
+  "detailDestination": "Destination",
+  "detailRule": "Rule",
+  "detailOperation": "Operation",
+  "detailStatus": "Status",
+  "detailError": "Error",
+  "technicalDetails": "Technical details",
+  "detailOperationId": "Operation ID",
+  "detailRuleId": "Rule ID",
+  "clearHistory": "Clear history",
+  "clearHistoryConfirm": "Clear all activity history? This cannot be undone.",
+
+  "foldersTitle": "Watched folders",
+  "foldersSubtitle": "Folders Sortify keeps an eye on",
+  "addFolder": "Add folder",
+  "folderMonitoring": "Monitoring",
+  "folderPaused": "Paused",
+  "openFolder": "Open folder",
+  "revealInExplorer": "Reveal in file manager",
+  "removeFolder": "Remove folder",
+  "removeFolderConfirmTitle": "Remove watched folder?",
+  "removeFolderConfirmBody": "Sortify will stop monitoring {path}. Files already organized are not affected.",
+  "@removeFolderConfirmBody": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "addFolderPreviewTitle": "Start watching this folder?",
+  "addFolderPreviewBody": "Sortify will watch {path} and apply your enabled rules to new files.",
+  "@addFolderPreviewBody": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "folderPickerTitle": "Choose a folder to watch",
+  "folderAlreadyWatched": "This folder is already being watched",
+  "folderAdded": "Folder added",
+  "folderRemoved": "Folder removed",
+
+  "noFoldersTitle": "No folders are being watched",
+  "noFoldersBody": "Add a folder to start automatically organizing your files.",
+  "noFoldersAction": "Add a folder",
+
+  "fileExistsTitle": "File already exists",
+  "fileExistsBody": "{fileName} already exists in the destination folder.",
+  "@fileExistsBody": {
+    "placeholders": {
+      "fileName": { "type": "String" }
+    }
+  },
+  "keepBoth": "Keep both",
+  "replace": "Replace",
+  "skip": "Skip",
+
+  "unmatchedTitle": "Unmatched files",
+  "unmatchedSubtitle": "Files that don't match any rule",
+  "unmatchedCount": "{count, plural, =0{No unmatched files} =1{1 file doesn't match any rule} other{{count} files don't match any rule}}",
+  "@unmatchedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "createRuleFromFile": "Create rule from file",
+  "deleteFile": "Delete file",
+  "deleteFileConfirmTitle": "Delete this file?",
+  "deleteFileConfirmPermanent": "{fileName} will be permanently deleted. This cannot be undone.",
+  "@deleteFileConfirmPermanent": {
+    "placeholders": {
+      "fileName": { "type": "String" }
+    }
+  },
+  "deleteFileConfirmTrash": "{fileName} will be moved to the trash.",
+  "@deleteFileConfirmTrash": {
+    "placeholders": {
+      "fileName": { "type": "String" }
+    }
+  },
+  "fileDeleted": "File deleted",
+  "deleteToTrash": "Move deleted files to trash",
+  "deleteToTrashDesc": "When off, deleting a file removes it permanently",
+  "filterByType": "Filter by type",
+  "allTypes": "All types",
+  "tableFile": "File",
+  "tableType": "Type",
+  "tableFolder": "Folder",
+  "createRuleForType": "Create rule for {type}",
+  "@createRuleForType": {
+    "placeholders": {
+      "type": { "type": "String" }
+    }
+  },
+  "ignoreType": "Ignore {type}",
+  "@ignoreType": {
+    "placeholders": {
+      "type": { "type": "String" }
+    }
+  },
+  "paginationPrev": "Previous",
+  "paginationNext": "Next",
+  "paginationSummary": "{start}–{end} of {total}",
+  "@paginationSummary": {
+    "placeholders": {
+      "start": { "type": "int" },
+      "end": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "trayMonitoring": "Monitoring {count} folders",
+  "@trayMonitoring": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "trayOpen": "Open Sortify",
+  "trayPause": "Pause monitoring",
+  "trayResume": "Resume monitoring",
+  "trayRunAll": "Run all rules",
+  "traySettings": "Settings",
+  "trayQuit": "Quit",
+  "trayTooltip": "Sortify - file organizer",
+  "notificationsMoved": "{count, plural, =1{Moved 1 file} other{Moved {count} files}}",
+  "@notificationsMoved": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "paletteSearchHint": "Search commands, rules and files...",
+  "paletteCommands": "Commands",
+  "paletteRules": "Rules",
+  "paletteFiles": "Unmatched files",
+  "paletteNoResults": "No results found",
+  "paletteCreateRule": "Create new rule",
+  "paletteAddFolder": "Add folder",
+  "paletteRunAll": "Run all rules",
+  "palettePause": "Pause monitoring",
+  "paletteResume": "Resume monitoring",
+  "paletteOpenSettings": "Open settings",
+  "paletteGoDashboard": "Go to dashboard",
+  "paletteGoActivity": "Go to activity",
+  "paletteGoRules": "Go to rules",
+  "paletteGoFolders": "Go to folders",
+  "paletteRunRule": "Run rule",
+  "paletteToggleTheme": "Toggle theme",
+  "paletteClose": "Close",
+
+  "settingsTitle": "Settings",
+  "settingsSubtitle": "Tune how Sortify behaves",
+  "sectionGeneral": "General",
+  "sectionMonitoring": "Monitoring",
+  "sectionConflicts": "Conflicts",
+  "sectionAppearance": "Appearance",
+  "sectionLanguage": "Language",
+  "startWithSystem": "Start with system",
+  "startWithSystemDesc": "Launch Sortify when you sign in",
+  "startMinimized": "Start minimized",
+  "startMinimizedDesc": "Open in the system tray without a window",
+  "confirmFileOperations": "Confirm file operations",
+  "confirmFileOperationsDesc": "Ask before moving or deleting files",
+  "scanInterval": "Scan interval",
+  "scanIntervalDesc": "How often watched folders are re-scanned",
+  "secondsShort": "{count}s",
+  "@secondsShort": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "watchSubfolders": "Watch subfolders",
+  "watchSubfoldersDesc": "Include nested folders in monitoring",
+  "ignoreHidden": "Ignore hidden files",
+  "ignoreHiddenDesc": "Skip dotfiles and hidden system files",
+  "ignoredExtensions": "Ignored extensions",
+  "ignoredExtensionsDesc": "Files with these extensions are never tracked or organized",
+  "extensionHint": "tmp, log",
+  "addExtension": "Add",
+  "conflictAskEveryTime": "Ask every time",
+  "conflictAskEveryTimeDesc": "Show a dialog when a destination file exists",
+  "conflictKeepBoth": "Keep both",
+  "conflictKeepBothDesc": "Rename the incoming file to avoid overwriting",
+  "conflictReplace": "Replace",
+  "conflictReplaceDesc": "Overwrite the existing file",
+  "conflictSkip": "Skip",
+  "conflictSkipDesc": "Leave the file where it is",
+  "appearanceDark": "Dark",
+  "appearanceLight": "Light",
+  "appearanceSystem": "System",
+  "languageEnglish": "English",
+  "languagePortuguese": "Português",
+  "languageSpanish": "Español",
+  "settingsSaved": "Settings saved",
+
+  "commonSave": "Save",
+  "commonCancel": "Cancel",
+  "commonDelete": "Delete",
+  "commonEdit": "Edit",
+  "commonClose": "Close",
+  "commonConfirm": "Confirm",
+  "commonApply": "Apply",
+  "commonRun": "Run",
+  "commonPause": "Pause",
+  "commonResume": "Resume",
+  "commonRetry": "Retry",
+  "commonLoading": "Loading...",
+  "commonError": "Something went wrong",
+  "commonSuccess": "Success",
+  "commonWarning": "Warning",
+  "commonYes": "Yes",
+  "commonNo": "No",
+  "commonComingSoon": "Coming soon",
+  "commonFiles": "{count, plural, =1{1 file} other{{count} files}}",
+  "@commonFiles": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "shortcutCommandPalette": "Command palette",
+  "shortcutSearch": "Search",
+  "helpTitle": "Quick guide",
+  "helpBody": "Add a folder, create a rule, and Sortify will organize new files automatically.",
+  "filesUnit": "MB",
+  "today": "Today",
+  "yesterday": "Yesterday"
+}

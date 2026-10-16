@@ -1,0 +1,38 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="28" y1="16" x2="228" y2="244" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"></stop>
+      <stop offset="0.55" stop-color="#3B82F6"></stop>
+      <stop offset="1" stop-color="#2563EB"></stop>
+    </linearGradient>
+    <linearGradient id="accent" x1="104" y1="56" x2="152" y2="146" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCD34D"></stop>
+      <stop offset="1" stop-color="#F59E0B"></stop>
+    </linearGradient>
+  </defs>
+
+  <!-- App tile -->
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#bg)"></rect>
+
+  <!-- Folder -->
+  <path
+    d="M44 112c0-10.5 8.5-19 19-19h32.6c5 0 9.9 2 13.4 5.6L122 112h65c10.5 0 19 8.5 19 19v64c0 10.5-8.5 19-19 19H63c-10.5 0-19-8.5-19-19v-83z"
+    fill="#FFFFFF"
+  ></path>
+
+  <!-- Arrow moving into the folder -->
+  <path
+    d="M124 54V112"
+    stroke="url(#accent)"
+    stroke-width="26"
+    stroke-linecap="round"
+  ></path>
+  <path
+    d="M96 90l28 30 28-30"
+    stroke="url(#accent)"
+    stroke-width="26"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  ></path>
+</svg>
