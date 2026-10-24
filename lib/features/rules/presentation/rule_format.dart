@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../../l10n/generated/app_localizations.dart';
 import '../domain/rule.dart';
 import '../domain/rule_condition.dart';
@@ -17,6 +19,10 @@ abstract final class RuleFormat {
       ConditionOperator.greaterThan => l10n.operatorGreaterThan,
       ConditionOperator.lessThan => l10n.operatorLessThan,
       ConditionOperator.equalTo => l10n.operatorEqualTo,
+      ConditionOperator.startsWith => l10n.operatorStartsWith,
+      ConditionOperator.endsWith => l10n.operatorEndsWith,
+      ConditionOperator.olderThan => l10n.operatorOlderThan,
+      ConditionOperator.newerThan => l10n.operatorNewerThan,
     };
   }
 
@@ -25,6 +31,7 @@ abstract final class RuleFormat {
       ConditionType.extension => l10n.conditionExtension,
       ConditionType.size => l10n.conditionSize,
       ConditionType.name => l10n.conditionName,
+      ConditionType.modified => l10n.conditionModified,
     };
   }
 
@@ -42,6 +49,9 @@ abstract final class RuleFormat {
         return '${operatorLabel(condition.operator, l10n)} ${condition.value}';
       case ConditionType.name:
         return '${operatorLabel(condition.operator, l10n)} "${condition.value}"';
+      case ConditionType.modified:
+        return '${operatorLabel(condition.operator, l10n)} '
+            '${condition.value} ${l10n.daysUnit}';
     }
   }
 
@@ -57,13 +67,24 @@ abstract final class RuleFormat {
     final action = rule.primaryAction;
     if (action == null) return l10n.actionComingSoon;
     final value = action.value.trim();
+    final subfolder = action.subfolder.trim();
+    final path = subfolder.isEmpty ? value : '$value › $subfolder';
     return switch (action.type) {
-      ActionType.move => value.isEmpty ? l10n.actionMove : value,
-      ActionType.copy => value.isEmpty ? l10n.actionCopy : value,
-      ActionType.rename => value.isEmpty ? l10n.actionRename : value,
+      ActionType.move => value.isEmpty ? l10n.actionMove : path,
+      ActionType.copy =>
+        value.isEmpty ? l10n.actionCopy : '${l10n.actionCopy} $path',
+      ActionType.rename =>
+        value.isEmpty ? l10n.actionRename : '${l10n.actionRename}: $value',
       ActionType.delete => l10n.actionDelete,
     };
   }
+
+  static IconData actionIcon(ActionType type) => switch (type) {
+    ActionType.move => Icons.drive_file_move_outline,
+    ActionType.copy => Icons.file_copy_outlined,
+    ActionType.rename => Icons.drive_file_rename_outline,
+    ActionType.delete => Icons.delete_outline_rounded,
+  };
 
   /// A representative extension for the rule icon, if one exists.
   static String? representativeExtension(Rule rule) {

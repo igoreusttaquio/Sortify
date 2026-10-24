@@ -460,6 +460,12 @@ abstract class AppLocalizations {
   /// **'File name'**
   String get conditionName;
 
+  /// No description provided for @conditionModified.
+  ///
+  /// In en, this message translates to:
+  /// **'Modified date'**
+  String get conditionModified;
+
   /// No description provided for @operatorIs.
   ///
   /// In en, this message translates to:
@@ -501,6 +507,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'equal to'**
   String get operatorEqualTo;
+
+  /// No description provided for @operatorStartsWith.
+  ///
+  /// In en, this message translates to:
+  /// **'starts with'**
+  String get operatorStartsWith;
+
+  /// No description provided for @operatorEndsWith.
+  ///
+  /// In en, this message translates to:
+  /// **'ends with'**
+  String get operatorEndsWith;
+
+  /// No description provided for @operatorOlderThan.
+  ///
+  /// In en, this message translates to:
+  /// **'older than'**
+  String get operatorOlderThan;
+
+  /// No description provided for @operatorNewerThan.
+  ///
+  /// In en, this message translates to:
+  /// **'newer than'**
+  String get operatorNewerThan;
+
+  /// No description provided for @daysUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get daysUnit;
 
   /// No description provided for @actionMove.
   ///
@@ -549,6 +585,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose folder'**
   String get chooseFolder;
+
+  /// No description provided for @createSubfolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Create subfolder'**
+  String get createSubfolder;
+
+  /// No description provided for @createSubfolderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Group files in a new folder inside the destination. Use / for nested folders.'**
+  String get createSubfolderHelp;
+
+  /// No description provided for @subfolderName.
+  ///
+  /// In en, this message translates to:
+  /// **'Subfolder name'**
+  String get subfolderName;
+
+  /// No description provided for @renameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Use tokens to build the name. The original extension is kept.'**
+  String get renameHelp;
+
+  /// No description provided for @deleteHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Matching files are sent to the trash or deleted permanently, according to your settings.'**
+  String get deleteHelp;
+
+  /// No description provided for @templateTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert token'**
+  String get templateTokens;
+
+  /// No description provided for @tokenName.
+  ///
+  /// In en, this message translates to:
+  /// **'File name without extension'**
+  String get tokenName;
+
+  /// No description provided for @tokenExt.
+  ///
+  /// In en, this message translates to:
+  /// **'Extension'**
+  String get tokenExt;
+
+  /// No description provided for @tokenYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year modified'**
+  String get tokenYear;
+
+  /// No description provided for @tokenMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month modified'**
+  String get tokenMonth;
+
+  /// No description provided for @tokenDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day modified'**
+  String get tokenDay;
+
+  /// No description provided for @tokenDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date modified (yyyy-mm-dd)'**
+  String get tokenDate;
+
+  /// No description provided for @exampleResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get exampleResult;
+
+  /// No description provided for @actionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Action'**
+  String get actionLabel;
+
+  /// No description provided for @onConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'If the file already exists'**
+  String get onConflict;
 
   /// No description provided for @previewTitle.
   ///

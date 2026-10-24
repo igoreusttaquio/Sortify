@@ -23,6 +23,7 @@ import '../../folders/application/monitoring_controller.dart';
 import '../application/rule_editor_controller.dart';
 import '../application/rules_controller.dart';
 import '../domain/rule.dart';
+import '../domain/rule_enums.dart';
 import 'rule_format.dart';
 
 class RulesPage extends ConsumerWidget {
@@ -157,7 +158,9 @@ class _RuleCard extends ConsumerWidget {
                 Row(
                   children: [
                     Icon(
-                      Icons.subdirectory_arrow_right_rounded,
+                      RuleFormat.actionIcon(
+                        rule.primaryAction?.type ?? ActionType.move,
+                      ),
                       size: 13,
                       color: theme.colorScheme.onSurfaceVariant,
                     ),

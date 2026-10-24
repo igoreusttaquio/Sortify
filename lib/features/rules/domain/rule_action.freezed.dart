@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RuleAction {
 
- String get id; ActionType get type; String get value; int get ordinal;
+ String get id; ActionType get type; String get value;/// Optional subfolder created inside the destination for move/copy. May
+/// contain name template tokens (see `NameTemplate`) and separators for
+/// nested folders, e.g. `{year}/{month}`. Empty means no subfolder.
+ String get subfolder; int get ordinal;
 /// Create a copy of RuleAction
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +30,20 @@ $RuleActionCopyWith<RuleAction> get copyWith => _$RuleActionCopyWithImpl<RuleAct
 @override
 bool operator ==(Object other) {
   final _this = this as RuleAction;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RuleAction&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.value, _this.value) || other.value == _this.value)&&(identical(other.ordinal, _this.ordinal) || other.ordinal == _this.ordinal));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RuleAction&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.value, _this.value) || other.value == _this.value)&&(identical(other.subfolder, _this.subfolder) || other.subfolder == _this.subfolder)&&(identical(other.ordinal, _this.ordinal) || other.ordinal == _this.ordinal));
 }
 
 
 @override
 int get hashCode {
   final _this = this as RuleAction;
-  return Object.hash(runtimeType,_this.id,_this.type,_this.value,_this.ordinal);
+  return Object.hash(runtimeType,_this.id,_this.type,_this.value,_this.subfolder,_this.ordinal);
 }
 
 @override
 String toString() {
   final _this = this as RuleAction;
-  return 'RuleAction(id: ${_this.id}, type: ${_this.type}, value: ${_this.value}, ordinal: ${_this.ordinal})';
+  return 'RuleAction(id: ${_this.id}, type: ${_this.type}, value: ${_this.value}, subfolder: ${_this.subfolder}, ordinal: ${_this.ordinal})';
 }
 
 
@@ -51,7 +54,7 @@ abstract mixin class $RuleActionCopyWith<$Res>  {
   factory $RuleActionCopyWith(RuleAction value, $Res Function(RuleAction) _then) = _$RuleActionCopyWithImpl;
 @useResult
 $Res call({
- String id, ActionType type, String value, int ordinal
+ String id, ActionType type, String value, String subfolder, int ordinal
 });
 
 
@@ -68,11 +71,12 @@ class _$RuleActionCopyWithImpl<$Res>
 
 /// Create a copy of RuleAction
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? type = null,Object? value = null,Object? ordinal = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? type = null,Object? value = null,Object? subfolder = null,Object? ordinal = null,}) {
   return _then(RuleAction(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as ActionType,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String,subfolder: null == subfolder ? _self.subfolder : subfolder // ignore: cast_nullable_to_non_nullable
 as String,ordinal: null == ordinal ? _self.ordinal : ordinal // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -159,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  ActionType type,  String value,  int ordinal)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  ActionType type,  String value,  String subfolder,  int ordinal)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RuleAction() when $default != null:
-return $default(_that.id,_that.type,_that.value,_that.ordinal);case _:
+return $default(_that.id,_that.type,_that.value,_that.subfolder,_that.ordinal);case _:
   return orElse();
 
 }
@@ -180,10 +184,10 @@ return $default(_that.id,_that.type,_that.value,_that.ordinal);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  ActionType type,  String value,  int ordinal)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  ActionType type,  String value,  String subfolder,  int ordinal)  $default,) {final _that = this;
 switch (_that) {
 case _RuleAction():
-return $default(_that.id,_that.type,_that.value,_that.ordinal);case _:
+return $default(_that.id,_that.type,_that.value,_that.subfolder,_that.ordinal);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +204,10 @@ return $default(_that.id,_that.type,_that.value,_that.ordinal);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  ActionType type,  String value,  int ordinal)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  ActionType type,  String value,  String subfolder,  int ordinal)?  $default,) {final _that = this;
 switch (_that) {
 case _RuleAction() when $default != null:
-return $default(_that.id,_that.type,_that.value,_that.ordinal);case _:
+return $default(_that.id,_that.type,_that.value,_that.subfolder,_that.ordinal);case _:
   return null;
 
 }
@@ -215,12 +219,16 @@ return $default(_that.id,_that.type,_that.value,_that.ordinal);case _:
 
 
 class _RuleAction implements RuleAction {
-  const _RuleAction({required this.id, required this.type, required this.value, this.ordinal = 0});
+  const _RuleAction({required this.id, required this.type, required this.value, this.subfolder = '', this.ordinal = 0});
   
 
 @override final  String id;
 @override final  ActionType type;
 @override final  String value;
+/// Optional subfolder created inside the destination for move/copy. May
+/// contain name template tokens (see `NameTemplate`) and separators for
+/// nested folders, e.g. `{year}/{month}`. Empty means no subfolder.
+@override@JsonKey() final  String subfolder;
 @override@JsonKey() final  int ordinal;
 
 /// Create a copy of RuleAction
@@ -233,18 +241,18 @@ _$RuleActionCopyWith<_RuleAction> get copyWith => __$RuleActionCopyWithImpl<_Rul
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RuleAction&&(identical(other.id, id) || other.id == id)&&(identical(other.type, type) || other.type == type)&&(identical(other.value, value) || other.value == value)&&(identical(other.ordinal, ordinal) || other.ordinal == ordinal));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RuleAction&&(identical(other.id, id) || other.id == id)&&(identical(other.type, type) || other.type == type)&&(identical(other.value, value) || other.value == value)&&(identical(other.subfolder, subfolder) || other.subfolder == subfolder)&&(identical(other.ordinal, ordinal) || other.ordinal == ordinal));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,type,value,ordinal);
+    return Object.hash(runtimeType,id,type,value,subfolder,ordinal);
 }
 
 @override
 String toString() {
-    return 'RuleAction(id: $id, type: $type, value: $value, ordinal: $ordinal)';
+    return 'RuleAction(id: $id, type: $type, value: $value, subfolder: $subfolder, ordinal: $ordinal)';
 }
 
 
@@ -255,7 +263,7 @@ abstract mixin class _$RuleActionCopyWith<$Res> implements $RuleActionCopyWith<$
   factory _$RuleActionCopyWith(_RuleAction value, $Res Function(_RuleAction) _then) = __$RuleActionCopyWithImpl;
 @override @useResult
 $Res call({
- String id, ActionType type, String value, int ordinal
+ String id, ActionType type, String value, String subfolder, int ordinal
 });
 
 
@@ -272,11 +280,12 @@ class __$RuleActionCopyWithImpl<$Res>
 
 /// Create a copy of RuleAction
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? type = null,Object? value = null,Object? ordinal = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? type = null,Object? value = null,Object? subfolder = null,Object? ordinal = null,}) {
   return _then(_RuleAction(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as ActionType,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String,subfolder: null == subfolder ? _self.subfolder : subfolder // ignore: cast_nullable_to_non_nullable
 as String,ordinal: null == ordinal ? _self.ordinal : ordinal // ignore: cast_nullable_to_non_nullable
 as int,
   ));

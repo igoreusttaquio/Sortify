@@ -116,6 +116,7 @@ class RuleRepositoryImpl implements RuleRepository {
           'rule_id': rule.id,
           'type': action.type.dbValue,
           'value': action.value,
+          'subfolder': action.subfolder,
           'ordinal': i,
         });
       }
@@ -208,6 +209,7 @@ class RuleRepositoryImpl implements RuleRepository {
       id: row['id']! as String,
       type: ActionType.fromDb(row['type']! as String),
       value: row['value']! as String,
+      subfolder: row['subfolder'] as String? ?? '',
       ordinal: row['ordinal'] as int? ?? 0,
     );
   }

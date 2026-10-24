@@ -8,7 +8,6 @@ import 'package:uuid/uuid.dart';
 import 'package:watcher/watcher.dart';
 
 import '../../../core/di/providers.dart';
-import '../../../core/filesystem/file_utils.dart';
 import '../../../core/notifications/notification_controller.dart';
 import '../../activity/application/activity_controller.dart';
 import '../../activity/domain/file_operation.dart';
@@ -435,13 +434,16 @@ class MonitoringController extends Notifier<MonitoringState> {
         ignoreHidden: settings.ignoreHiddenFiles,
         ignoredExtensions: settings.ignoredExtensions.toSet(),
       );
+      final action = rule.primaryAction;
       for (final file in files) {
-        final destination = rule.destination == null
+        final destination = action == null
             ? ''
-            : FileUtils.resolveDestination(
-                watchedFolder: folder.path,
-                destination: rule.destination!,
-              );
+            : _engine.plannedDestination(
+                    action: action,
+                    file: file,
+                    watchedFolderPath: folder.path,
+                  ) ??
+                  '';
         entries.add(
           RulePreviewEntry(
             sourcePath: file.path,

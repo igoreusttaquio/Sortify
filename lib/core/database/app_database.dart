@@ -15,7 +15,7 @@ class AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   static const _fileName = 'sortify.db';
-  static const schemaVersion = 2;
+  static const schemaVersion = 3;
 
   Database? _database;
 
@@ -96,6 +96,7 @@ class AppDatabase {
         rule_id TEXT NOT NULL,
         type TEXT NOT NULL,
         value TEXT NOT NULL,
+        subfolder TEXT NOT NULL DEFAULT '',
         ordinal INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY (rule_id) REFERENCES rules (id) ON DELETE CASCADE
       )
@@ -116,9 +117,7 @@ class AppDatabase {
       )
     ''');
 
-    batch.execute(
-      'CREATE INDEX idx_conditions_rule ON conditions (rule_id)',
-    );
+    batch.execute('CREATE INDEX idx_conditions_rule ON conditions (rule_id)');
     batch.execute('CREATE INDEX idx_actions_rule ON actions (rule_id)');
     batch.execute(
       'CREATE INDEX idx_operations_created ON file_operations (created_at DESC)',
@@ -133,6 +132,11 @@ class AppDatabase {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE rules ADD COLUMN scope_path TEXT');
+    }
+    if (oldVersion < 3) {
+      await db.execute(
+        "ALTER TABLE actions ADD COLUMN subfolder TEXT NOT NULL DEFAULT ''",
+      );
     }
   }
 
