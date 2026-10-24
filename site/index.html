@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sortify — organize seus arquivos automaticamente</title>
+  <meta name="description" content="Sortify monitora suas pastas e organiza arquivos automaticamente com regras simples. Grátis para Windows e Linux.">
+  <link rel="icon" type="image/png" href="icon.png">
+  <meta property="og:title" content="Sortify">
+  <meta property="og:description" content="Organize seus arquivos automaticamente com regras simples.">
+  <meta property="og:image" content="icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1220;
+      --surface: #141d30;
+      --surface-2: #1b263c;
+      --surface-3: #243149;
+      --border: #2b3952;
+      --border-subtle: #1e2a40;
+      --text: #e8eef9;
+      --muted: #97a6c0;
+      --primary: #4f8cff;
+      --accent: #f5a524;
+      --success: #34d399;
+      --purple: #b39dff;
+      --pink: #f472b6;
+      --teal: #2dd4bf;
+      --error: #f87171;
+      --radius: 14px;
+      --max: 1120px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.6 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    code, .mono { font-family: "JetBrains Mono", Consolas, monospace; font-size: .9em; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+
+    /* Background glow */
+    .glow {
+      position: absolute; inset: 0 0 auto 0; height: 760px; pointer-events: none; z-index: -1;
+      background:
+        radial-gradient(600px 340px at 20% 10%, rgba(79,140,255,.20), transparent 70%),
+        radial-gradient(520px 300px at 85% 30%, rgba(245,165,36,.10), transparent 70%);
+    }
+
+    /* Nav */
+    nav { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px);
+      background: rgba(11,18,32,.75); border-bottom: 1px solid var(--border-subtle); }
+    nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+    .brand img { width: 30px; height: 30px; border-radius: 8px; }
+    .nav-links { display: flex; gap: 22px; margin-left: auto; color: var(--muted); font-size: 14.5px; }
+    .nav-links a:hover { color: var(--text); }
+    .lang { display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+    .lang button { background: none; border: 0; color: var(--muted); font: 600 12px Inter, sans-serif;
+      padding: 6px 10px; cursor: pointer; }
+    .lang button.on { background: rgba(79,140,255,.16); color: var(--primary); }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; border-radius: 12px;
+      font-weight: 600; font-size: 15px; border: 1px solid transparent; transition: transform .15s, background .15s, border-color .15s; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn svg { width: 18px; height: 18px; flex: none; }
+    .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 8px 30px -8px rgba(79,140,255,.6); }
+    .btn-primary:hover { background: #6699ff; }
+    .btn-ghost { border-color: var(--border); background: var(--surface); }
+    .btn-ghost:hover { border-color: #3a4b6a; }
+    .btn small { font-weight: 500; opacity: .75; font-size: 12.5px; }
+
+    /* Hero */
+    header.hero { position: relative; padding: 84px 0 64px; }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px;
+      background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.28); color: var(--success);
+      font-size: 13px; font-weight: 600; }
+    .pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px rgba(52,211,153,.18); }
+    h1 { font-size: clamp(36px, 5.4vw, 58px); line-height: 1.07; letter-spacing: -.03em; margin: 20px 0 18px; font-weight: 800; }
+    h1 em { font-style: normal; background: linear-gradient(90deg, var(--primary), #8fb4ff 60%, var(--accent));
+      -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { color: var(--muted); font-size: 18.5px; max-width: 540px; margin: 0 0 32px; }
+    .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+    .meta { margin-top: 18px; color: var(--muted); font-size: 13.5px; display: flex; gap: 16px; flex-wrap: wrap; }
+    .meta span::before { content: "✓ "; color: var(--success); }
+
+    /* Mockup */
+    .mock { background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+      box-shadow: 0 30px 80px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.02) inset; overflow: hidden; }
+    .mock-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border-subtle);
+      background: #0d1526; font-size: 13px; color: var(--muted); }
+    .mock-bar b { width: 10px; height: 10px; border-radius: 50%; background: var(--surface-3); }
+    .mock-bar span { margin-left: 8px; }
+    .mock-body { padding: 18px; display: grid; gap: 12px; }
+    .card { background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; }
+    .badge { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .12em; padding: 3px 8px;
+      border-radius: 6px; background: rgba(79,140,255,.13); color: var(--primary); margin-bottom: 10px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .field { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 7px 11px; font-size: 13.5px; }
+    .field.val { flex: 1; min-width: 120px; color: var(--text); }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .chip { padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border); font-size: 12.5px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+    .chip.on { color: var(--primary); background: rgba(79,140,255,.16); border-color: rgba(79,140,255,.5); }
+    .tok { font-family: "JetBrains Mono", monospace; font-size: 11.5px; padding: 3px 7px; border-radius: 6px;
+      background: rgba(79,140,255,.08); border: 1px solid var(--border-subtle); color: var(--primary); }
+    .toggle { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 13.5px; }
+    .switch { margin-left: auto; width: 34px; height: 20px; border-radius: 999px; background: var(--primary); position: relative; flex: none; }
+    .switch::after { content: ""; position: absolute; right: 3px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; }
+    .example { margin-top: 12px; padding: 8px 11px; border-radius: 8px; background: var(--bg); border: 1px dashed var(--border);
+      font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .example .mono { color: var(--primary); }
+
+    .flow { display: grid; gap: 8px; }
+    .file { display: flex; align-items: center; gap: 10px; font-size: 13.5px; padding: 8px 10px; border-radius: 10px;
+      background: var(--surface-2); border: 1px solid var(--border-subtle); animation: slide 6s ease-in-out infinite; }
+    .file:nth-child(2) { animation-delay: .4s; } .file:nth-child(3) { animation-delay: .8s; }
+    .ico { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font-size: 10px; font-weight: 800; flex: none; }
+    .file .to { margin-left: auto; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%; }
+    .ok { color: var(--success); font-size: 12px; font-weight: 600; }
+    @keyframes slide { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+
+    /* Sections */
+    section { padding: 88px 0; }
+    .eyebrow { color: var(--primary); font-weight: 700; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+    h2 { font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -.02em; line-height: 1.15; margin: 10px 0 14px; }
+    .sub { color: var(--muted); max-width: 620px; font-size: 17px; margin: 0; }
+    .center { text-align: center; } .center .sub { margin: 0 auto; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 44px; }
+    .feat { background: var(--surface); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 24px;
+      transition: border-color .2s, transform .2s; }
+    .feat:hover { border-color: var(--border); transform: translateY(-2px); }
+    .feat .fi { width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center; margin-bottom: 16px; }
+    .feat .fi svg { width: 21px; height: 21px; }
+    .feat h3 { margin: 0 0 6px; font-size: 17px; }
+    .feat p { margin: 0; color: var(--muted); font-size: 14.5px; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 44px; counter-reset: s; }
+    .step { position: relative; padding: 26px 24px; border-radius: var(--radius); border: 1px solid var(--border-subtle);
+      background: linear-gradient(180deg, var(--surface), transparent); }
+    .step::before { counter-increment: s; content: counter(s); display: grid; place-items: center; width: 32px; height: 32px;
+      border-radius: 50%; background: rgba(79,140,255,.15); color: var(--primary); font-weight: 800; margin-bottom: 14px; }
+    .step h3 { margin: 0 0 6px; font-size: 17px; } .step p { margin: 0; color: var(--muted); font-size: 14.5px; }
+
+    .tokens { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); }
+    td:first-child { width: 100px; }
+    td:last-child { color: var(--muted); }
+    .term { background: #070c16; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; font-size: 13.5px; line-height: 1.9; overflow-x: auto; }
+    .term .c { color: #5b6b87; } .term .d { color: var(--accent); } .term .f { color: var(--text); }
+
+    .download { background: linear-gradient(135deg, rgba(79,140,255,.16), rgba(245,165,36,.07));
+      border: 1px solid var(--border); border-radius: 22px; padding: 56px 32px; text-align: center; }
+    .download .cta { justify-content: center; margin-top: 28px; }
+    .version { margin-top: 16px; color: var(--muted); font-size: 13.5px; }
+    .version a { color: var(--primary); }
+
+    footer { border-top: 1px solid var(--border-subtle); padding: 28px 0; color: var(--muted); font-size: 14px; }
+    footer .wrap { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    footer .r { margin-left: auto; display: flex; gap: 20px; }
+    footer a:hover { color: var(--text); }
+
+    .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .file { animation: none; }
+      html { scroll-behavior: auto; }
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid, .tokens { grid-template-columns: 1fr; }
+      .grid, .steps { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+      .lang { margin-left: auto; }
+      header.hero { padding-top: 56px; }
+    }
+    @media (max-width: 600px) {
+      .grid, .steps { grid-template-columns: 1fr; }
+      section { padding: 64px 0; }
+      .wrap { padding: 0 16px; }
+      .btn { width: 100%; justify-content: center; }
+      .download { padding: 40px 20px; }
+      footer .r { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow"></div>
+
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="#"><img src="icon.png" alt="">Sortify</a>
+      <div class="nav-links">
+        <a href="#recursos" data-i18n="nav.features">Recursos</a>
+        <a href="#como" data-i18n="nav.how">Como funciona</a>
+        <a href="#download" data-i18n="nav.download">Download</a>
+        <a href="https://github.com/igoreusttaquio/Sortify" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="lang" role="group" aria-label="Idioma">
+        <button data-lang="pt" class="on">PT</button>
+        <button data-lang="en">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="pill"><i></i><span data-i18n="hero.pill">Grátis e de código aberto</span></span>
+        <h1 data-i18n-html="hero.title">Sua pasta de Downloads, <em>organizada sozinha.</em></h1>
+        <p class="lead" data-i18n="hero.lead">O Sortify monitora suas pastas e move, copia, renomeia ou exclui arquivos automaticamente, seguindo regras simples que você cria em segundos.</p>
+        <div class="cta">
+          <a class="btn btn-primary dl-primary" href="https://github.com/igoreusttaquio/Sortify/releases/latest">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+            <span class="dl-primary-label" data-i18n="hero.download">Baixar para Windows</span>
+          </a>
+          <a class="btn btn-ghost" href="#como" data-i18n="hero.how">Ver como funciona</a>
+        </div>
+        <div class="meta">
+          <span>Windows</span><span>Linux</span><span data-i18n="hero.langs">Português, English, Español</span>
+        </div>
+      </div>
+
+      <div class="mock reveal" aria-hidden="true">
+        <div class="mock-bar"><b></b><b></b><b></b><span data-i18n="mock.title">Nova regra</span></div>
+        <div class="mock-body">
+          <div class="card">
+            <span class="badge" data-i18n="mock.when">QUANDO</span>
+            <div class="row">
+              <span class="field" data-i18n="mock.ext">Extensão do arquivo</span>
+              <span class="field" data-i18n="mock.is">é</span>
+              <span class="field val">.jpg, .png, .heic</span>
+            </div>
+          </div>
+          <div class="card">
+            <span class="badge" data-i18n="mock.then">ENTÃO</span>
+            <div class="chips">
+              <span class="chip on" data-i18n="mock.move">Mover para</span>
+              <span class="chip" data-i18n="mock.copy">Copiar para</span>
+              <span class="chip" data-i18n="mock.rename">Renomear</span>
+              <span class="chip" data-i18n="mock.delete">Excluir</span>
+            </div>
+            <div class="row" style="margin-top:12px"><span class="field val">Pictures</span></div>
+            <div class="toggle"><span data-i18n="mock.subfolder">Criar subpasta</span><span class="switch"></span></div>
+            <div class="row" style="margin-top:8px"><span class="field val mono">{year}/{month}</span></div>
+            <div class="example"><span data-i18n="mock.example">Exemplo</span>: <span class="mono">~\Pictures\2026\10\IMG_2041.jpg</span></div>
+          </div>
+          <div class="flow">
+            <div class="file"><span class="ico" style="background:rgba(179,157,255,.15);color:var(--purple)">JPG</span>IMG_2041.jpg<span class="to">→ Pictures\2026\10</span><span class="ok">✓</span></div>
+            <div class="file"><span class="ico" style="background:rgba(248,113,113,.15);color:var(--error)">PDF</span>fatura-outubro.pdf<span class="to">→ Documents\Faturas</span><span class="ok">✓</span></div>
+            <div class="file"><span class="ico" style="background:rgba(245,165,36,.15);color:var(--accent)">ZIP</span>setup-old.zip<span class="to" data-i18n="mock.trash">→ Lixeira</span><span class="ok">✓</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="recursos">
+    <div class="wrap">
+      <div class="center reveal">
+        <div class="eyebrow" data-i18n="feat.eyebrow">Recursos</div>
+        <h2 data-i18n="feat.title">Tudo que você precisa para nunca mais arrumar arquivos à mão</h2>
+        <p class="sub" data-i18n="feat.sub">Crie a regra uma vez. O Sortify cuida do resto, em segundo plano, sem atrapalhar.</p>
+      </div>
+      <div class="grid">
+        <div class="feat reveal">
+          <div class="fi" style="background:rgba(52,211,153,.12);color:var(--success)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div>
+          <h3 data-i18n="f1.t">Monitoramento em tempo real</h3>
+          <p data-i18n="f1.d">Assim que um arquivo chega na pasta e termina de ser baixado, a regra certa é aplicada.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="fi" style="background:rgba(79,140,255,.13);color:var(--primary)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+          <h3 data-i18n="f2.t">Regras do seu jeito</h3>
+          <p data-i18n="f2.d">Combine extensão, nome, tamanho e data de modificação. Depois escolha mover, copiar, renomear ou excluir.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="fi" style="background:rgba(245,165,36,.13);color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M12 11v5m-2.5-2.5h5"/></svg></div>
+          <h3 data-i18n="f3.t">Subpastas automáticas</h3>
+          <p data-i18n="f3.d">Agrupe por ano, mês ou extensão com tokens como {year}/{month}. As pastas são criadas na hora.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="fi" style="background:rgba(179,157,255,.13);color:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <h3 data-i18n="f4.t">Pré-visualização segura</h3>
+          <p data-i18n="f4.d">Veja exatamente quais arquivos serão afetados e para onde vão antes de aplicar uma regra.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="fi" style="background:rgba(45,212,191,.12);color:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <h3 data-i18n="f5.t">Histórico completo</h3>
+          <p data-i18n="f5.d">Cada movimentação fica registrada na Atividade, com origem, destino e status.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="fi" style="background:rgba(244,114,182,.12);color:var(--pink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8"/></svg></div>
+          <h3 data-i18n="f6.t">Discreto na bandeja</h3>
+          <p data-i18n="f6.d">Inicia com o sistema, fica na bandeja e não pesa. Tema claro e escuro, em 3 idiomas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="como">
+    <div class="wrap">
+      <div class="center reveal">
+        <div class="eyebrow" data-i18n="how.eyebrow">Como funciona</div>
+        <h2 data-i18n="how.title">Três passos e pronto</h2>
+      </div>
+      <div class="steps">
+        <div class="step reveal"><h3 data-i18n="s1.t">Escolha as pastas</h3><p data-i18n="s1.d">Adicione Downloads, Área de Trabalho ou qualquer pasta que vive bagunçada.</p></div>
+        <div class="step reveal"><h3 data-i18n="s2.t">Crie uma regra</h3><p data-i18n="s2.d">"Quando for PDF, mover para Documentos". Leva menos de um minuto.</p></div>
+        <div class="step reveal"><h3 data-i18n="s3.t">Esqueça</h3><p data-i18n="s3.d">O Sortify trabalha em segundo plano. Você só percebe que tudo está no lugar.</p></div>
+      </div>
+
+      <div class="tokens" style="margin-top:72px">
+        <div class="reveal">
+          <div class="eyebrow" data-i18n="tok.eyebrow">Novo</div>
+          <h2 data-i18n="tok.title">Nomes de pastas e arquivos com tokens</h2>
+          <p class="sub" data-i18n="tok.sub">Use tokens no nome da subpasta ou ao renomear. Cada arquivo vai para o lugar certo, com o nome certo.</p>
+          <table style="margin-top:24px">
+            <tr><td><span class="tok">{name}</span></td><td data-i18n="tok.name">Nome do arquivo sem extensão</td></tr>
+            <tr><td><span class="tok">{ext}</span></td><td data-i18n="tok.ext">Extensão (pdf, jpg…)</td></tr>
+            <tr><td><span class="tok">{year}</span></td><td data-i18n="tok.year">Ano de modificação</td></tr>
+            <tr><td><span class="tok">{month}</span></td><td data-i18n="tok.month">Mês de modificação</td></tr>
+            <tr><td><span class="tok">{date}</span></td><td data-i18n="tok.date">Data completa (aaaa-mm-dd)</td></tr>
+          </table>
+        </div>
+        <div class="term mono reveal">
+          <div class="c" data-i18n="tok.c1"># Subpasta: {year}/{ext}</div>
+          <div><span class="f">IMG_2041.jpg</span> <span class="c">→</span> <span class="d">Pictures\2026\jpg\</span></div>
+          <div><span class="f">relatorio.pdf</span> <span class="c">→</span> <span class="d">Documents\2026\pdf\</span></div>
+          <br>
+          <div class="c" data-i18n="tok.c2"># Renomear: {date}_{name}</div>
+          <div><span class="f">scan.pdf</span> <span class="c">→</span> <span class="d">2026-10-24_scan.pdf</span></div>
+          <br>
+          <div class="c" data-i18n="tok.c3"># Quando: modificado há mais de 30 dias → Excluir</div>
+          <div><span class="f">instalador-antigo.exe</span> <span class="c">→</span> <span class="d" data-i18n="tok.trash">Lixeira</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="download">
+    <div class="wrap">
+      <div class="download reveal">
+        <h2 data-i18n="dl.title">Comece a organizar agora</h2>
+        <p class="sub" style="margin:0 auto" data-i18n="dl.sub">Grátis, sem cadastro e sem anúncios. Seus arquivos nunca saem do seu computador.</p>
+        <div class="cta">
+          <a class="btn btn-primary" id="dl-win" href="https://github.com/igoreusttaquio/Sortify/releases/latest">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5L10.5 4.4v7.1H3zM11.5 4.3L21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zM11.5 12.5H21V21l-9.5-1.3z"/></svg>
+            <span><span data-i18n="dl.win">Windows (instalador)</span></span>
+          </a>
+          <a class="btn btn-ghost" id="dl-zip" href="https://github.com/igoreusttaquio/Sortify/releases/latest">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>
+            <span data-i18n="dl.zip">Windows (portátil .zip)</span>
+          </a>
+          <a class="btn btn-ghost" id="dl-linux" href="https://github.com/igoreusttaquio/Sortify/releases/latest">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+            <span data-i18n="dl.linux">Linux (.tar.gz)</span>
+          </a>
+        </div>
+        <div class="version" id="version"><a href="https://github.com/igoreusttaquio/Sortify/releases" target="_blank" rel="noopener" data-i18n="dl.all">Todas as versões</a></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span class="brand" style="font-size:15px"><img src="icon.png" alt="" style="width:22px;height:22px">Sortify</span>
+      <span>© <span id="year"></span></span>
+      <div class="r">
+        <a href="https://github.com/igoreusttaquio/Sortify" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/igoreusttaquio/Sortify/issues" target="_blank" rel="noopener" data-i18n="foot.issues">Reportar problema</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const REPO = 'igoreusttaquio/Sortify';
+    const T = {
+      en: {
+        'nav.features': 'Features', 'nav.how': 'How it works', 'nav.download': 'Download',
+        'hero.pill': 'Free and open source',
+        'hero.title': 'Your Downloads folder, <em>organized on its own.</em>',
+        'hero.lead': 'Sortify watches your folders and automatically moves, copies, renames or deletes files, following simple rules you create in seconds.',
+        'hero.download': 'Download for Windows', 'hero.download.linux': 'Download for Linux', 'hero.how': 'See how it works',
+        'hero.langs': 'English, Português, Español',
+        'mock.title': 'New rule', 'mock.when': 'WHEN', 'mock.then': 'THEN', 'mock.ext': 'File extension', 'mock.is': 'is',
+        'mock.move': 'Move to', 'mock.copy': 'Copy to', 'mock.rename': 'Rename', 'mock.delete': 'Delete',
+        'mock.subfolder': 'Create subfolder', 'mock.example': 'Example', 'mock.trash': '→ Trash',
+        'feat.eyebrow': 'Features', 'feat.title': 'Everything you need to never sort files by hand again',
+        'feat.sub': 'Create the rule once. Sortify handles the rest, quietly in the background.',
+        'f1.t': 'Real-time monitoring', 'f1.d': 'As soon as a file lands in the folder and finishes downloading, the right rule is applied.',
+        'f2.t': 'Rules your way', 'f2.d': 'Combine extension, name, size and modified date. Then move, copy, rename or delete.',
+        'f3.t': 'Automatic subfolders', 'f3.d': 'Group by year, month or extension with tokens like {year}/{month}. Folders are created on the fly.',
+        'f4.t': 'Safe preview', 'f4.d': 'See exactly which files will be affected and where they go before applying a rule.',
+        'f5.t': 'Full history', 'f5.d': 'Every operation is logged in Activity, with source, destination and status.',
+        'f6.t': 'Quiet in the tray', 'f6.d': 'Starts with your system, lives in the tray and stays light. Light and dark themes, 3 languages.',
+        'how.eyebrow': 'How it works', 'how.title': 'Three steps and done',
+        's1.t': 'Pick your folders', 's1.d': 'Add Downloads, Desktop or any folder that is always a mess.',
+        's2.t': 'Create a rule', 's2.d': '"When it is a PDF, move to Documents". Takes less than a minute.',
+        's3.t': 'Forget about it', 's3.d': 'Sortify works in the background. You just notice everything is in place.',
+        'tok.eyebrow': 'New', 'tok.title': 'Folder and file names with tokens',
+        'tok.sub': 'Use tokens in the subfolder name or when renaming. Every file goes to the right place, with the right name.',
+        'tok.name': 'File name without extension', 'tok.ext': 'Extension (pdf, jpg…)', 'tok.year': 'Year modified',
+        'tok.month': 'Month modified', 'tok.date': 'Full date (yyyy-mm-dd)',
+        'tok.c1': '# Subfolder: {year}/{ext}', 'tok.c2': '# Rename: {date}_{name}',
+        'tok.c3': '# When: modified more than 30 days ago → Delete', 'tok.trash': 'Trash',
+        'dl.title': 'Start organizing now', 'dl.sub': 'Free, no sign-up, no ads. Your files never leave your computer.',
+        'dl.win': 'Windows (installer)', 'dl.zip': 'Windows (portable .zip)', 'dl.linux': 'Linux (.tar.gz)',
+        'dl.all': 'All releases', 'dl.latest': 'Latest version', 'foot.issues': 'Report an issue',
+      },
+      pt: {},
+    };
+    // Portuguese strings come straight from the HTML.
+    document.querySelectorAll('[data-i18n]').forEach(el => T.pt[el.dataset.i18n] = el.textContent);
+    document.querySelectorAll('[data-i18n-html]').forEach(el => T.pt[el.dataset.i18nHtml] = el.innerHTML);
+    T.pt['hero.download.linux'] = 'Baixar para Linux';
+    T.pt['dl.latest'] = 'Versão mais recente';
+
+    const isLinux = /Linux/.test(navigator.userAgent) && !/Android/.test(navigator.userAgent);
+    let lang = 'pt';
+    let release = null;
+
+    function t(key) { return T[lang][key] ?? T.pt[key] ?? ''; }
+
+    function applyLang(next) {
+      lang = next;
+      document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+      document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+      document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
+      document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.lang === lang));
+      document.querySelector('.dl-primary-label').textContent = t(isLinux ? 'hero.download.linux' : 'hero.download');
+      renderVersion();
+      try { localStorage.setItem('sortify-lang', lang); } catch (_) {}
+    }
+
+    function renderVersion() {
+      if (!release) return;
+      const el = document.getElementById('version');
+      el.innerHTML = '';
+      el.append(`${t('dl.latest')}: ${release.tag_name} · `);
+      const a = document.createElement('a');
+      a.href = `https://github.com/${REPO}/releases`;
+      a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = t('dl.all');
+      el.append(a);
+    }
+
+    // Link the buttons straight to the files of the latest release.
+    async function loadRelease() {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`);
+        if (!res.ok) return;
+        release = await res.json();
+        const find = re => release.assets.find(a => re.test(a.name))?.browser_download_url;
+        const win = find(/Setup.*\.exe$/i), zip = find(/windows.*\.zip$/i), linux = find(/linux.*\.tar\.gz$/i);
+        if (win) document.getElementById('dl-win').href = win;
+        if (zip) document.getElementById('dl-zip').href = zip;
+        if (linux) document.getElementById('dl-linux').href = linux;
+        const primary = isLinux ? linux : win;
+        if (primary) document.querySelector('.dl-primary').href = primary;
+        renderVersion();
+      } catch (_) { /* keep the releases page links */ }
+    }
+
+    document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    let saved = null;
+    try { saved = localStorage.getItem('sortify-lang'); } catch (_) {}
+    applyLang(saved || (navigator.language.toLowerCase().startsWith('pt') ? 'pt' : 'en'));
+    loadRelease();
+
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }), { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  </script>
+</body>
+</html>
