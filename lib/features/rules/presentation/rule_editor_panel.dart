@@ -4,11 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
+import '../../../core/filesystem/file_utils.dart';
+import '../../../core/filesystem/name_template.dart';
 import '../../../core/notifications/app_notification.dart';
 import '../../../core/notifications/notification_controller.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/animations.dart';
+import '../../../core/widgets/choice_pills.dart';
 import '../../../core/widgets/file_type_icon.dart';
 import '../../../core/widgets/icon_tile.dart';
 import '../../../core/widgets/surface_card.dart';
@@ -40,24 +43,26 @@ class _RuleEditorPanelState extends ConsumerState<RuleEditorPanel> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _destinationController = TextEditingController();
+  final _subfolderController = TextEditingController();
 
   final List<RuleCondition> _conditions = [];
   ActionType _actionType = ActionType.move;
   ConflictPolicy _conflictPolicy = ConflictPolicy.askEveryTime;
+  bool _createSubfolder = false;
   String? _scopeFolderPath;
   bool _initialized = false;
   bool _applying = false;
 
   bool get _isEditing => widget.ruleId != null;
 
-  bool get _isPathAction =>
-      _actionType == ActionType.move || _actionType == ActionType.copy;
+  bool get _isPathAction => _actionType.isPathAction;
 
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
     _destinationController.dispose();
+    _subfolderController.dispose();
     super.dispose();
   }
 
@@ -75,6 +80,8 @@ class _RuleEditorPanelState extends ConsumerState<RuleEditorPanel> {
           ..clear()
           ..addAll(rule.conditions);
         _actionType = rule.primaryAction?.type ?? ActionType.move;
+        _subfolderController.text = rule.primaryAction?.subfolder ?? '';
+        _createSubfolder = _subfolderController.text.trim().isNotEmpty;
         _conflictPolicy = rule.conflictPolicy;
         _scopeFolderPath = rule.scopeFolderPath;
         return;
@@ -353,137 +360,257 @@ class _RuleEditorPanelState extends ConsumerState<RuleEditorPanel> {
         children: [
           _SectionBadge(label: l10n.thenLabel),
           const SizedBox(height: AppSpacing.sm),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 180,
-                child: DropdownButtonFormField<ActionType>(
-                  initialValue: _actionType,
-                  isDense: true,
-                  mouseCursor: SystemMouseCursors.click,
-                  isExpanded: true,
-                  decoration: const InputDecoration(),
-                  items: [
-                    DropdownMenuItem(
-                      value: ActionType.move,
-                      child: Text(
-                        l10n.actionMove,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: ActionType.copy,
-                      child: Text(
-                        l10n.actionCopy,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: ActionType.rename,
-                      child: Text(
-                        l10n.actionRename,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: ActionType.delete,
-                      child: Text(
-                        l10n.actionDelete,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) setState(() => _actionType = value);
-                  },
+          ChoicePills<ActionType>(
+            value: _actionType,
+            onChanged: (value) => setState(() => _actionType = value),
+            options: [
+              for (final type in ActionType.values)
+                ChoiceOption(
+                  value: type,
+                  label: _actionLabel(type, l10n),
+                  icon: RuleFormat.actionIcon(type),
                 ),
-              ),
-              if (_isPathAction || _actionType == ActionType.rename) ...[
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: TextField(
-                    controller: _destinationController,
-                    decoration: InputDecoration(
-                      hintText: _isPathAction
-                          ? l10n.destinationFolder
-                          : l10n.newFileName,
-                      suffixIcon: _isPathAction
-                          ? IconButton(
-                              tooltip: l10n.chooseFolder,
-                              onPressed: _pickDestination,
-                              icon: const Icon(
-                                Icons.folder_open_rounded,
-                                size: 18,
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
-          if (_isPathAction) ...[
-            const SizedBox(height: AppSpacing.md),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _FieldLabel(l10n.sectionConflicts),
-                      const SizedBox(height: AppSpacing.xs),
-                      DropdownButtonFormField<ConflictPolicy>(
-                        initialValue: _conflictPolicy,
-                        isDense: true,
-                        mouseCursor: SystemMouseCursors.click,
-                        isExpanded: true,
-                        decoration: const InputDecoration(),
-                        items: [
-                          DropdownMenuItem(
-                            value: ConflictPolicy.askEveryTime,
-                            child: Text(
-                              l10n.conflictAskEveryTime,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: ConflictPolicy.keepBoth,
-                            child: Text(
-                              l10n.keepBoth,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: ConflictPolicy.replace,
-                            child: Text(
-                              l10n.replace,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: ConflictPolicy.skip,
-                            child: Text(
-                              l10n.skip,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() => _conflictPolicy = value);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
+          const SizedBox(height: AppSpacing.md),
+          AnimatedSize(
+            duration: AppMotion.fast,
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: switch (_actionType) {
+              ActionType.move ||
+              ActionType.copy => _buildPathActionFields(theme, l10n),
+              ActionType.rename => _buildRenameFields(theme, l10n),
+              ActionType.delete => _HelpText(
+                icon: Icons.info_outline_rounded,
+                text: l10n.deleteHelp,
+              ),
+            },
+          ),
         ],
       ),
+    );
+  }
+
+  String _actionLabel(ActionType type, AppLocalizations l10n) => switch (type) {
+    ActionType.move => l10n.actionMove,
+    ActionType.copy => l10n.actionCopy,
+    ActionType.rename => l10n.actionRename,
+    ActionType.delete => l10n.actionDelete,
+  };
+
+  Widget _buildPathActionFields(ThemeData theme, AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _FieldLabel(l10n.destinationFolder),
+        const SizedBox(height: AppSpacing.xs),
+        TextField(
+          controller: _destinationController,
+          decoration: InputDecoration(
+            hintText: l10n.destinationFolder,
+            prefixIcon: const Icon(Icons.folder_outlined, size: 18),
+            suffixIcon: IconButton(
+              tooltip: l10n.chooseFolder,
+              onPressed: _pickDestination,
+              icon: const Icon(Icons.folder_open_rounded, size: 18),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        _ToggleRow(
+          icon: Icons.create_new_folder_outlined,
+          title: l10n.createSubfolder,
+          subtitle: l10n.createSubfolderHelp,
+          value: _createSubfolder,
+          onChanged: (value) => setState(() => _createSubfolder = value),
+        ),
+        if (_createSubfolder) ...[
+          const SizedBox(height: AppSpacing.xs),
+          TextField(
+            controller: _subfolderController,
+            decoration: InputDecoration(
+              hintText: '${l10n.subfolderName} · {year}/{ext}',
+              prefixIcon: const Icon(
+                Icons.subdirectory_arrow_right_rounded,
+                size: 18,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          _TokenBar(
+            onInsert: (token) => _insertToken(_subfolderController, token),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.sm),
+        _buildExample(theme, l10n),
+        const SizedBox(height: AppSpacing.md),
+        _FieldLabel(l10n.onConflict),
+        const SizedBox(height: AppSpacing.xs),
+        ChoicePills<ConflictPolicy>(
+          dense: true,
+          value: _conflictPolicy,
+          onChanged: (value) => setState(() => _conflictPolicy = value),
+          options: [
+            ChoiceOption(
+              value: ConflictPolicy.askEveryTime,
+              label: l10n.conflictAskEveryTime,
+            ),
+            ChoiceOption(value: ConflictPolicy.keepBoth, label: l10n.keepBoth),
+            ChoiceOption(value: ConflictPolicy.replace, label: l10n.replace),
+            ChoiceOption(value: ConflictPolicy.skip, label: l10n.skip),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRenameFields(ThemeData theme, AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _FieldLabel(l10n.newFileName),
+        const SizedBox(height: AppSpacing.xs),
+        TextField(
+          controller: _destinationController,
+          decoration: const InputDecoration(
+            hintText: '{date}_{name}',
+            prefixIcon: Icon(Icons.drive_file_rename_outline, size: 18),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        _TokenBar(
+          onInsert: (token) => _insertToken(_destinationController, token),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        _HelpText(icon: Icons.info_outline_rounded, text: l10n.renameHelp),
+        const SizedBox(height: AppSpacing.sm),
+        _buildExample(theme, l10n),
+      ],
+    );
+  }
+
+  /// Live preview of where a sample file would end up with the current form.
+  Widget _buildExample(ThemeData theme, AppLocalizations l10n) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        _destinationController,
+        _subfolderController,
+      ]),
+      builder: (context, _) {
+        final example = _examplePath();
+        if (example == null) return const SizedBox.shrink();
+        final semantic = context.semanticColors;
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.xs,
+          ),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            border: Border.all(color: semantic.subtleBorder),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.visibility_outlined,
+                size: 15,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                '${l10n.exampleResult}:',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: Tooltip(
+                  message: example,
+                  child: Text(
+                    example,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontFamily: 'Consolas',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Renders the current form against a sample file named after the first
+  /// extension condition, e.g. `report.pdf`.
+  String? _examplePath() {
+    final value = _destinationController.text.trim();
+    if (value.isEmpty) return null;
+
+    var extension = '.pdf';
+    for (final condition in _conditions) {
+      if (condition.type != ConditionType.extension ||
+          condition.operator != ConditionOperator.isEqual) {
+        continue;
+      }
+      final first = condition.value.split(',').first.trim();
+      if (first.isNotEmpty) {
+        extension = first.startsWith('.') ? first : '.$first';
+        break;
+      }
+    }
+
+    final folders = ref.read(foldersControllerProvider).value ?? const [];
+    final watched =
+        _scopeFolderPath ?? (folders.isEmpty ? null : folders.first.path);
+    final samplePath = p.join(watched ?? '', 'report$extension');
+    final now = DateTime.now();
+
+    if (_actionType == ActionType.rename) {
+      var name = NameTemplate.sanitizeSegment(
+        NameTemplate.render(
+          value,
+          filePath: samplePath,
+          modified: now,
+        ).replaceAll(RegExp(r'[\\/]'), '_'),
+      );
+      if (name.isEmpty) return null;
+      if (p.extension(name).isEmpty) name = '$name$extension';
+      return name;
+    }
+
+    var folder = watched == null
+        ? p.normalize(value)
+        : FileUtils.resolveDestination(
+            watchedFolder: watched,
+            destination: value,
+          );
+    if (_createSubfolder) {
+      final subfolder = NameTemplate.renderFolder(
+        _subfolderController.text,
+        filePath: samplePath,
+        modified: now,
+      );
+      if (subfolder.isNotEmpty) folder = p.join(folder, subfolder);
+    }
+    return p.join(folder, p.basename(samplePath));
+  }
+
+  void _insertToken(TextEditingController controller, String token) {
+    final text = controller.text;
+    final selection = controller.selection;
+    final start = selection.isValid ? selection.start : text.length;
+    final end = selection.isValid ? selection.end : text.length;
+    final inserted = '{$token}';
+    controller.value = TextEditingValue(
+      text: text.replaceRange(start, end, inserted),
+      selection: TextSelection.collapsed(offset: start + inserted.length),
     );
   }
 
@@ -533,6 +660,9 @@ class _RuleEditorPanelState extends ConsumerState<RuleEditorPanel> {
         .firstOrNull;
 
     final destination = _destinationController.text.trim();
+    final subfolder = _isPathAction && _createSubfolder
+        ? _subfolderController.text.trim()
+        : '';
     return Rule(
       id: widget.ruleId ?? _uuid.v4(),
       name: _nameController.text.trim(),
@@ -549,6 +679,7 @@ class _RuleEditorPanelState extends ConsumerState<RuleEditorPanel> {
           id: existing?.primaryAction?.id ?? _uuid.v4(),
           type: _actionType,
           value: _actionType == ActionType.delete ? '' : destination,
+          subfolder: subfolder,
         ),
       ],
       conflictPolicy: _conflictPolicy,
@@ -576,6 +707,12 @@ class _RuleEditorPanelState extends ConsumerState<RuleEditorPanel> {
             : l10n.destinationFolder,
         type: AppNotificationType.error,
       );
+      return false;
+    }
+    if (_isPathAction &&
+        _createSubfolder &&
+        _subfolderController.text.trim().isEmpty) {
+      _notify(l10n.subfolderName, type: AppNotificationType.error);
       return false;
     }
     return true;
@@ -690,10 +827,14 @@ Future<bool> _showPreviewDialog(
                                     style: theme.textTheme.bodyMedium,
                                   ),
                                   Text(
-                                    entry.destination,
+                                    entry.destination.isEmpty
+                                        ? l10n.actionDelete
+                                        : '→ ${entry.destination}',
                                     overflow: TextOverflow.ellipsis,
                                     style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
+                                      color: entry.destination.isEmpty
+                                          ? theme.colorScheme.error
+                                          : theme.colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                 ],
@@ -751,8 +892,14 @@ class _ConditionRow extends StatelessWidget {
       ConditionType.name => [
         ConditionOperator.contains,
         ConditionOperator.doesNotContain,
+        ConditionOperator.startsWith,
+        ConditionOperator.endsWith,
         ConditionOperator.isEqual,
         ConditionOperator.isNot,
+      ],
+      ConditionType.modified => [
+        ConditionOperator.olderThan,
+        ConditionOperator.newerThan,
       ],
     };
   }
@@ -762,6 +909,7 @@ class _ConditionRow extends StatelessWidget {
       ConditionType.extension => '.pdf, .jpg',
       ConditionType.size => '10 MB',
       ConditionType.name => 'invoice',
+      ConditionType.modified => '30',
     };
   }
 
@@ -821,7 +969,12 @@ class _ConditionRow extends StatelessWidget {
     final valueField = TextFormField(
       initialValue: condition.value,
       onChanged: (value) => onChanged(condition.copyWith(value: value)),
-      decoration: InputDecoration(hintText: _valueHint(condition.type)),
+      decoration: InputDecoration(
+        hintText: _valueHint(condition.type),
+        suffixText: condition.type == ConditionType.modified
+            ? l10n.daysUnit
+            : null,
+      ),
     );
 
     final removeButton = IconButton(
@@ -917,6 +1070,155 @@ class _SectionBadge extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// A compact switch row with an icon, a title and a short explanation.
+class _ToggleRow extends StatelessWidget {
+  const _ToggleRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = value
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurfaceVariant;
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      onTap: () => onChanged(!value),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: theme.textTheme.labelLarge),
+                  Text(
+                    subtitle,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Switch(value: value, onChanged: onChanged),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Clickable `{token}` chips that insert a name template token.
+class _TokenBar extends StatelessWidget {
+  const _TokenBar({required this.onInsert});
+
+  final ValueChanged<String> onInsert;
+
+  static String _description(String token, AppLocalizations l10n) =>
+      switch (token) {
+        'name' => l10n.tokenName,
+        'ext' => l10n.tokenExt,
+        'year' => l10n.tokenYear,
+        'month' => l10n.tokenMonth,
+        'day' => l10n.tokenDay,
+        'date' => l10n.tokenDate,
+        _ => token,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final semantic = context.semanticColors;
+    final l10n = AppLocalizations.of(context);
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(
+          '${l10n.templateTokens}:',
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        for (final token in NameTemplate.tokens)
+          Tooltip(
+            message: _description(token, l10n),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              onTap: () => onInsert(token),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  border: Border.all(color: semantic.subtleBorder),
+                ),
+                child: Text(
+                  '{$token}',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontFamily: 'Consolas',
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _HelpText extends StatelessWidget {
+  const _HelpText({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: Icon(
+            icon,
+            size: 15,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(
+          child: Text(
+            text,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -2,7 +2,10 @@
 enum ConditionType {
   extension('extension'),
   size('size'),
-  name('name');
+  name('name'),
+
+  /// Age of the file based on its last modification time, in days.
+  modified('modified');
 
   const ConditionType(this.dbValue);
 
@@ -22,7 +25,11 @@ enum ConditionOperator {
   doesNotContain('doesNotContain'),
   greaterThan('greaterThan'),
   lessThan('lessThan'),
-  equalTo('equalTo');
+  equalTo('equalTo'),
+  startsWith('startsWith'),
+  endsWith('endsWith'),
+  olderThan('olderThan'),
+  newerThan('newerThan');
 
   const ConditionOperator(this.dbValue);
 
@@ -35,8 +42,7 @@ enum ConditionOperator {
       );
 }
 
-/// The operation a rule performs. Only [move] is active in the MVP; the
-/// remaining values exist so the schema and engine are future-proof.
+/// The operation a rule performs on a matched file.
 enum ActionType {
   move('move'),
   copy('copy'),
@@ -52,7 +58,8 @@ enum ActionType {
     orElse: () => ActionType.move,
   );
 
-  bool get isImplemented => this == ActionType.move;
+  /// Whether the action sends the file to a destination folder.
+  bool get isPathAction => this == ActionType.move || this == ActionType.copy;
 }
 
 /// What to do when a file already exists at the destination.

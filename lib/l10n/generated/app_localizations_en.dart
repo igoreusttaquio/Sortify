@@ -221,6 +221,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get conditionName => 'File name';
 
   @override
+  String get conditionModified => 'Modified date';
+
+  @override
   String get operatorIs => 'is';
 
   @override
@@ -240,6 +243,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get operatorEqualTo => 'equal to';
+
+  @override
+  String get operatorStartsWith => 'starts with';
+
+  @override
+  String get operatorEndsWith => 'ends with';
+
+  @override
+  String get operatorOlderThan => 'older than';
+
+  @override
+  String get operatorNewerThan => 'newer than';
+
+  @override
+  String get daysUnit => 'days';
 
   @override
   String get actionMove => 'Move to';
@@ -264,6 +282,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseFolder => 'Choose folder';
+
+  @override
+  String get createSubfolder => 'Create subfolder';
+
+  @override
+  String get createSubfolderHelp =>
+      'Group files in a new folder inside the destination. Use / for nested folders.';
+
+  @override
+  String get subfolderName => 'Subfolder name';
+
+  @override
+  String get renameHelp =>
+      'Use tokens to build the name. The original extension is kept.';
+
+  @override
+  String get deleteHelp =>
+      'Matching files are sent to the trash or deleted permanently, according to your settings.';
+
+  @override
+  String get templateTokens => 'Insert token';
+
+  @override
+  String get tokenName => 'File name without extension';
+
+  @override
+  String get tokenExt => 'Extension';
+
+  @override
+  String get tokenYear => 'Year modified';
+
+  @override
+  String get tokenMonth => 'Month modified';
+
+  @override
+  String get tokenDay => 'Day modified';
+
+  @override
+  String get tokenDate => 'Date modified (yyyy-mm-dd)';
+
+  @override
+  String get exampleResult => 'Example';
+
+  @override
+  String get actionLabel => 'Action';
+
+  @override
+  String get onConflict => 'If the file already exists';
 
   @override
   String get previewTitle => 'Preview';

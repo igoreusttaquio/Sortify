@@ -221,6 +221,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get conditionName => 'Nombre del archivo';
 
   @override
+  String get conditionModified => 'Fecha de modificación';
+
+  @override
   String get operatorIs => 'es';
 
   @override
@@ -240,6 +243,21 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get operatorEqualTo => 'igual a';
+
+  @override
+  String get operatorStartsWith => 'empieza con';
+
+  @override
+  String get operatorEndsWith => 'termina con';
+
+  @override
+  String get operatorOlderThan => 'más antiguo que';
+
+  @override
+  String get operatorNewerThan => 'más reciente que';
+
+  @override
+  String get daysUnit => 'días';
 
   @override
   String get actionMove => 'Mover a';
@@ -264,6 +282,54 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get chooseFolder => 'Elegir carpeta';
+
+  @override
+  String get createSubfolder => 'Crear subcarpeta';
+
+  @override
+  String get createSubfolderHelp =>
+      'Agrupa los archivos en una nueva carpeta dentro del destino. Usa / para carpetas anidadas.';
+
+  @override
+  String get subfolderName => 'Nombre de la subcarpeta';
+
+  @override
+  String get renameHelp =>
+      'Usa tokens para formar el nombre. Se conserva la extensión original.';
+
+  @override
+  String get deleteHelp =>
+      'Los archivos coincidentes se envían a la papelera o se eliminan permanentemente, según tu configuración.';
+
+  @override
+  String get templateTokens => 'Insertar token';
+
+  @override
+  String get tokenName => 'Nombre del archivo sin extensión';
+
+  @override
+  String get tokenExt => 'Extensión';
+
+  @override
+  String get tokenYear => 'Año de modificación';
+
+  @override
+  String get tokenMonth => 'Mes de modificación';
+
+  @override
+  String get tokenDay => 'Día de modificación';
+
+  @override
+  String get tokenDate => 'Fecha de modificación (aaaa-mm-dd)';
+
+  @override
+  String get exampleResult => 'Ejemplo';
+
+  @override
+  String get actionLabel => 'Acción';
+
+  @override
+  String get onConflict => 'Si el archivo ya existe';
 
   @override
   String get previewTitle => 'Vista previa';

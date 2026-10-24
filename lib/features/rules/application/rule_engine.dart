@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/filesystem/file_deleter.dart';
 import '../../../core/filesystem/file_utils.dart';
 import '../../../core/filesystem/local_file_system.dart';
+import '../../../core/filesystem/name_template.dart';
 import '../../activity/domain/activity_repository.dart';
 import '../../activity/domain/file_operation.dart';
 import '../domain/rule.dart';
@@ -87,6 +88,8 @@ class RuleEngine {
         return _matchesSize(condition, file.lengthSync());
       case ConditionType.name:
         return _matchesName(condition, FileUtils.fileNameOf(file.path));
+      case ConditionType.modified:
+        return _matchesModified(condition, file.lastModifiedSync());
     }
   }
 
@@ -120,8 +123,27 @@ class RuleEngine {
     return switch (condition.operator) {
       ConditionOperator.contains => haystack.contains(value),
       ConditionOperator.doesNotContain => !haystack.contains(value),
+      ConditionOperator.startsWith => haystack.startsWith(value),
+      ConditionOperator.endsWith =>
+        haystack.endsWith(value) ||
+            p.basenameWithoutExtension(haystack).endsWith(value),
       ConditionOperator.isNot => haystack != value,
       _ => haystack == value,
+    };
+  }
+
+  /// Compares the file's age (now - last modified) to a number of days.
+  bool _matchesModified(RuleCondition condition, DateTime modified) {
+    final days = double.tryParse(condition.value.trim().replaceAll(',', '.'));
+    if (days == null || days < 0) return false;
+    final age = DateTime.now().difference(modified);
+    final threshold = Duration(
+      minutes: (days * Duration.minutesPerDay).round(),
+    );
+    return switch (condition.operator) {
+      ConditionOperator.newerThan ||
+      ConditionOperator.lessThan => age < threshold,
+      _ => age > threshold,
     };
   }
 
@@ -150,7 +172,7 @@ class RuleEngine {
 
     final action = rule.primaryAction!;
     final behavior = _behaviorOf(rule.conflictPolicy);
-    final plannedDestination = _plannedDestination(
+    final planned = plannedDestination(
       action: action,
       file: file,
       watchedFolderPath: watchedFolderPath,
@@ -165,7 +187,7 @@ class RuleEngine {
           ruleName: rule.name,
           fileName: FileUtils.fileNameOf(file.path),
           source: file.path,
-          destination: plannedDestination,
+          destination: planned,
           operation: _kindOf(action),
           status: OperationStatus.moved,
           createdAt: DateTime.now(),
@@ -178,17 +200,20 @@ class RuleEngine {
       case ActionType.move:
         result = await _fs.moveFile(
           source: file.path,
-          destination: plannedDestination!,
+          destination: planned!,
           behavior: behavior,
         );
       case ActionType.copy:
         result = await _fs.copyFile(
           source: file.path,
-          destination: plannedDestination!,
+          destination: planned!,
           behavior: behavior,
         );
       case ActionType.rename:
-        result = await _fs.renameFile(source: file.path, newName: action.value);
+        result = await _fs.renameFile(
+          source: file.path,
+          newName: p.basename(planned!),
+        );
       case ActionType.delete:
         final deleted = await _deleter.delete(
           file.path,
@@ -207,7 +232,7 @@ class RuleEngine {
       source: file.path,
       destination: action.type == ActionType.delete
           ? null
-          : (result.destination ?? plannedDestination),
+          : (result.destination ?? planned),
       operation: _kindOf(action),
       status: switch (result.status) {
         MoveStatus.moved => OperationStatus.moved,
@@ -247,22 +272,48 @@ class RuleEngine {
     return files;
   }
 
-  String? _plannedDestination({
+  /// Where [file] ends up when [action] runs, or `null` for `delete`.
+  ///
+  /// Move/copy resolve the destination folder, then append the optional
+  /// templated subfolder. Rename expands template tokens in the new name.
+  String? plannedDestination({
     required RuleAction action,
     required File file,
     required String watchedFolderPath,
   }) {
+    DateTime modified() {
+      try {
+        return file.lastModifiedSync();
+      } on FileSystemException {
+        return DateTime.now();
+      }
+    }
+
     switch (action.type) {
       case ActionType.move:
       case ActionType.copy:
         // The action value is a destination *folder*; the file keeps its name.
-        final folder = FileUtils.resolveDestination(
+        var folder = FileUtils.resolveDestination(
           watchedFolder: watchedFolderPath,
           destination: action.value,
         );
+        if (action.subfolder.trim().isNotEmpty) {
+          final subfolder = NameTemplate.renderFolder(
+            action.subfolder,
+            filePath: file.path,
+            modified: modified(),
+          );
+          if (subfolder.isNotEmpty) folder = p.join(folder, subfolder);
+        }
         return p.join(folder, p.basename(file.path));
       case ActionType.rename:
-        var name = action.value.trim();
+        var name = NameTemplate.sanitizeSegment(
+          NameTemplate.render(
+            action.value,
+            filePath: file.path,
+            modified: modified(),
+          ).replaceAll(RegExp(r'[\\/]'), '_'),
+        );
         if (name.isEmpty) return null;
         if (p.extension(name).isEmpty) {
           name = '$name${p.extension(file.path)}';
