@@ -27,6 +27,6 @@ if (-not $iscc) {
 }
 
 Write-Host "==> Compilando instalador com $iscc" -ForegroundColor Cyan
-& $iscc "installer\sortify.iss"
+& $iscc "/DMyAppVersion=$Version" "installer\sortify.iss"
 
 Write-Host "==> Pronto: dist\Sortify-Setup-$Version.exe" -ForegroundColor Green

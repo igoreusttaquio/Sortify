@@ -4,7 +4,10 @@
 ; Or just run:          powershell -File installer\build.ps1
 
 #define MyAppName "Sortify"
-#define MyAppVersion "1.0.0"
+; Override with: ISCC /DMyAppVersion=1.2.0 installer\sortify.iss
+#ifndef MyAppVersion
+  #define MyAppVersion "1.0.0"
+#endif
 #define MyAppPublisher "Sortify"
 #define MyAppExeName "sortify.exe"
 #define BuildDir "..\build\windows\x64\runner\Release"
